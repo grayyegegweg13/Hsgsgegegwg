@@ -1,0 +1,37 @@
+# /etc/nginx/sites-available/gemini-prompt
+# Replace example.com with your domain, then:
+#   sudo ln -s /etc/nginx/sites-available/gemini-prompt /etc/nginx/sites-enabled/
+#   sudo nginx -t && sudo systemctl reload nginx
+#   sudo certbot --nginx -d example.com      # adds HTTPS + redirect automatically
+
+limit_req_zone $binary_remote_addr zone=gemini_api:10m rate=20r/m;
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+
+    client_max_body_size 128k;
+
+    location /api/generate {
+        limit_req zone=gemini_api burst=5 nodelay;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Must exceed GEMINI_TIMEOUT_MS (120 s by default).
+        proxy_read_timeout 180s;
+        proxy_send_timeout 180s;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

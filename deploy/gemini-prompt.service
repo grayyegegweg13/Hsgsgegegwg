@@ -1,0 +1,28 @@
+# Native (non-Docker) systemd unit. Install with:
+#   sudo cp deploy/gemini-prompt.service /etc/systemd/system/
+#   sudo sed -i "s#__USER__#$USER#g; s#__DIR__#$PWD#g" /etc/systemd/system/gemini-prompt.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now gemini-prompt
+[Unit]
+Description=Gemini Prompt web app
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Run as the same Linux user that signed in to Gemini CLI (credentials in ~/.gemini).
+User=__USER__
+WorkingDirectory=__DIR__/backend
+EnvironmentFile=__DIR__/.env
+Environment=NODE_ENV=production
+# Make the globally installed `gemini` binary findable (npm global prefix + nvm-free installs).
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env node src/server.js
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

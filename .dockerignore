@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+.git
+.env
+.env.*
+!.env.example
+gemini-auth
+**/oauth_creds.json
+**/*.log
+backend/test
+README.md
+deploy
+*.sh

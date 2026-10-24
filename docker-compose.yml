@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        GEMINI_CLI_VERSION: ${GEMINI_CLI_VERSION:-latest}
+    image: gemini-prompt:latest
+    container_name: gemini-prompt
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      HOME: /home/node
+    # Only reachable from the host; Nginx proxies public traffic to it.
+    ports:
+      - "127.0.0.1:${PUBLISH_PORT:-3000}:3000"
+    # Gemini CLI credentials live on the HOST in ./gemini-auth (created by deploy.sh,
+    # never copied into the image). Writable because the CLI refreshes OAuth tokens.
+    # Not needed when GEMINI_PROVIDER=api.
+    volumes:
+      - ./gemini-auth:/home/node/.gemini
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /home/node/.cache
+      - /home/node/.npm
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    pids_limit: 256
+    mem_limit: 1g
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
