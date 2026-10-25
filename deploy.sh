@@ -71,7 +71,7 @@ fi
 
 say "Waiting for health check"
 for _ in $(seq 1 30); do
-  if ./healthcheck.sh >/dev/null 2>&1; then ./healthcheck.sh; say "Deployed. Open http://127.0.0.1:${PORT:-3000} (or your domain via Nginx)."; exit 0; fi
+  if ./healthcheck.sh >/dev/null 2>&1; then ./healthcheck.sh; IP="$(hostname -I 2>/dev/null | awk '{print $1}')"; say "Deployed. Open http://${IP:-SERVER_IP}:${PUBLISH_PORT:-${PORT:-3000}}  (firewall: sudo ufw allow ${PUBLISH_PORT:-${PORT:-3000}}/tcp)"; exit 0; fi
   sleep 2
 done
 die "App did not become healthy. Check logs: docker compose logs app  |  journalctl -u gemini-prompt -n 100"
