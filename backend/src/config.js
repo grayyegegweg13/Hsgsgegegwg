@@ -38,6 +38,7 @@ export function loadConfig() {
     corsOrigins: (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
     trustProxy: process.env.TRUST_PROXY || 'loopback',
     logPrompts: bool('LOG_PROMPTS', false),
+    forceHttps: bool('FORCE_HTTPS', false),
     staticDir: process.env.STATIC_DIR || '',
   };
 

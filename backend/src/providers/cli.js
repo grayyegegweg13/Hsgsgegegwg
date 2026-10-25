@@ -57,7 +57,14 @@ export function createCliProvider(cfg, log) {
           shell: false,
           detached: true, // own process group so we can kill sub-processes too
           stdio: ['ignore', 'pipe', 'pipe'],
-          env: { ...process.env, NO_COLOR: '1', CI: '1', TERM: 'dumb' },
+          env: {
+            ...process.env,
+            NO_COLOR: '1', CI: '1', TERM: 'dumb',
+            // Reuse the saved "Login with Google" session in non-interactive mode
+            // instead of asking for an API key every time.
+            ...(process.env.GEMINI_API_KEY ? {} : { GOOGLE_GENAI_USE_GCA: process.env.GOOGLE_GENAI_USE_GCA || 'true' }),
+            GEMINI_FORCE_FILE_STORAGE: process.env.GEMINI_FORCE_FILE_STORAGE || 'true',
+          },
         });
 
         const finish = (err, value) => {

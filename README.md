@@ -90,8 +90,10 @@ The image contains Gemini CLI but **no credentials**. They are stored on the hos
 `./gemini-auth/`, which is mounted at `/home/node/.gemini`. It is never copied into the image.
 
 ```bash
-docker compose exec -it -e NO_BROWSER=true app gemini
+./login.sh            # Docker   (or: ./login.sh --native)
 ```
+`login.sh` fixes folder permissions, pre-selects **Login with Google** in `settings.json`
+(so the CLI stops asking for an API key), and starts the sign-in.
 1. Pick **Login with Google**.
 2. The CLI prints a URL. Open it in a browser on **any** computer, sign in with your authorized Google account, and paste the code back into the terminal.
 3. When you see the chat prompt, type `/quit`.
@@ -215,6 +217,8 @@ cd frontend && npm ci && npm run dev                      # UI on :5173 (proxies
 
 | What you see | Fix |
 |---|---|
+| Blank white page on `http://` | Old version forced HTTPS. Keep `FORCE_HTTPS=false` in `.env` and rebuild. |
+| Login asked again / asks for API key | Run `./login.sh`, then `docker compose restart`. |
 | "Gemini authentication failed on the server" | The CLI is not signed in or the token expired. Docker: `docker compose exec -it -e NO_BROWSER=true app gemini`. Native: run `NO_BROWSER=true gemini` as the service user. Check that `./gemini-auth` is owned by uid 1000. |
 | "Gemini CLI is not installed" | Native: `sudo npm i -g @google/gemini-cli` and check that `which gemini` is in the service `PATH` (set `GEMINI_COMMAND=/full/path/gemini`). Docker: rebuild. |
 | "Gemini returned output that could not be read" / unknown argument | Your CLI version is too old or too new. Run `gemini --help` and confirm that `-p` and `--output-format json` exist. Upgrade with `./update.sh --cli`. If `--approval-mode plan` is rejected, clear `GEMINI_APPROVAL_MODE`. |

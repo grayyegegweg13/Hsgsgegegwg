@@ -12,6 +12,9 @@ services:
       HOST: 0.0.0.0
       PORT: 3000
       HOME: /home/node
+      NO_BROWSER: "true"
+      GOOGLE_GENAI_USE_GCA: "true"
+      GEMINI_FORCE_FILE_STORAGE: "true"
     # Only reachable from the host; Nginx proxies public traffic to it.
     ports:
       - "127.0.0.1:${PUBLISH_PORT:-3000}:3000"
@@ -25,6 +28,7 @@ services:
       - /tmp
       - /home/node/.cache
       - /home/node/.npm
+      - /home/node/.config
     security_opt:
       - no-new-privileges:true
     cap_drop: [ALL]

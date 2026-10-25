@@ -14,6 +14,8 @@ User=__USER__
 WorkingDirectory=__DIR__/backend
 EnvironmentFile=__DIR__/.env
 Environment=NODE_ENV=production
+Environment=GOOGLE_GENAI_USE_GCA=true
+Environment=GEMINI_FORCE_FILE_STORAGE=true
 # Make the globally installed `gemini` binary findable (npm global prefix + nvm-free installs).
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
 ExecStart=/usr/bin/env node src/server.js

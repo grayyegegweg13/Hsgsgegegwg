@@ -12,7 +12,18 @@ export function createApp(cfg, provider, log) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', cfg.trustProxy);
-  app.use(helmet());
+  // Plain-HTTP friendly security headers. Helmet's defaults include
+  // "upgrade-insecure-requests" + HSTS, which make browsers load the JS/CSS over
+  // https:// on an http-only test server -> blank white page. Only enable them
+  // when FORCE_HTTPS=true (i.e. you really serve the site over HTTPS).
+  const csp = helmet.contentSecurityPolicy.getDefaultDirectives();
+  if (!cfg.forceHttps) delete csp['upgrade-insecure-requests'];
+  app.use(helmet({
+    contentSecurityPolicy: { useDefaults: false, directives: csp },
+    strictTransportSecurity: cfg.forceHttps,
+    crossOriginOpenerPolicy: cfg.forceHttps,
+    originAgentCluster: cfg.forceHttps,
+  }));
 
   const limiter = createLimiter(cfg.maxConcurrent, cfg.maxQueue);
   const inFlight = new Set();
